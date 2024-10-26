@@ -20,6 +20,7 @@ class CartView(ListView):
             return redirect(f'/store/category/?q={self.request.GET.get('q')}')
         return super().get(*args, **kwargs)
 
+    # for calculating total price and displaying it.
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = queryset.annotate(
@@ -40,6 +41,7 @@ class CartView(ListView):
         )
         cart_count = cart.aggregate(count=Count("cartitems"))
 
+        # For calculating the total and subtotal of cart items prices.
         try:
             subtotal = self.get_queryset().aggregate(
                 total=Sum("total_price")
@@ -50,7 +52,7 @@ class CartView(ListView):
             subtotal = 0
             total = 0
 
-        # Displaying root categories in the dropdown meny
+        # Displaying root categories in the dropdown menu
         categories = Category.objects.filter(parent__isnull=True)
 
         context["cart_count"] = cart_count.get("count")
@@ -73,6 +75,7 @@ class CheckoutView(ListView):
             return redirect(f'/store/category/?q={self.request.GET.get('q')}')
         return super().get(*args, **kwargs)
 
+    # for calculating total price and displaying it.
     def get_queryset(self):
         queryset = super().get_queryset()
         queryset = queryset.annotate(
@@ -89,7 +92,7 @@ class CheckoutView(ListView):
         cart = Cart.objects.filter(user_id=self.request.user.id)
         cart_count = cart.aggregate(count=Count("cartitems"))
 
-        # Displaying root categories in the dropdown meny
+        # Displaying root categories in the dropdown menu
         categories = Category.objects.filter(parent__isnull=True)
 
         try:
@@ -120,13 +123,16 @@ class AddToCartView(CreateView):
         return self.request.META.get('HTTP_REFERER', '')
 
     def form_valid(self, form):
+        # if form is valid creates the cart item
+        # assigns the cart to it and saves it in the db
         new_item = form.save(commit=False)
         new_item.cart_id = self.request.user.id
         new_item.save()
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        # prints the validation errors
+        # prints the validation errors and redirects
+        # to the same page on which error was raised
         print(form.errors.as_json())
         return redirect(self.request.META.get('HTTP_REFERER', ''))
 

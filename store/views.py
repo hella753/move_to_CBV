@@ -1,5 +1,5 @@
-from django.db.models import Count, F, Sum
-from django.shortcuts import render, redirect
+from django.db.models import Count
+from django.shortcuts import redirect
 from django.views.generic import DetailView, ListView, TemplateView
 from store.models import Product, ProductReviews
 from store.models import Category, ShopReviews, ProductTags
@@ -8,6 +8,7 @@ from order.models import Cart
 
 class IndexView(ListView):
     model = ShopReviews
+    # Displays the Company reviews in a list at the bottom of the homepage
     template_name = "homepage/index.html"
     queryset = ShopReviews.objects.select_related("user")
     context_object_name = "reviews"
@@ -37,13 +38,15 @@ class CategoryListingsView(ListView):
     paginate_by = 6
 
     def get_queryset(self):
-        # Search-q; Filter-p(price),t(tags); Sort-fruitlist;
         queryset = super().get_queryset()
+
+        # Search-q filters by the name
         if self.request.GET.get('q'):
             queryset = queryset.filter(
                 product_name__icontains=self.request.GET.get('q')
             ).prefetch_related("tags")
 
+        # Filter - p(price) filters by the price and t(tags) by tags
         if self.request.GET.get('t') or self.request.GET.get('p'):
             tags = None
             if self.request.GET.get('t'):
@@ -55,15 +58,20 @@ class CategoryListingsView(ListView):
             ).prefetch_related("tags")
 
             if tags:
+                # If the tags is selected
                 queryset = queryset.filter(tags=tags).prefetch_related("tags")
 
+        # Sort-fruitlist orders by price if price is
+        # selected(value is 2) or does not sort.
         if self.request.GET.get('fruitlist'):
             if self.request.GET.get('fruitlist') == "2":
                 queryset = queryset.order_by("product_price")
 
-        # for individual category
+        # for individual category get the slug
         category_slug = self.kwargs.get("slug")
         if category_slug:
+            # Filter the products by the individual category
+            # and its descendants.
             category = Category.objects.filter(slug=category_slug)
             categories = category.get_descendants(include_self=True)
             queryset = (
@@ -83,14 +91,15 @@ class CategoryListingsView(ListView):
         product_tags = ProductTags.objects.all()
 
         # for the individual category change the categories variable
-        # to its descendants.
+        # to its descendants. To make the category.html get the
+        # subcategories as well.
         category_slug = self.kwargs.get("slug")
         if category_slug:
             category = Category.objects.filter(slug=category_slug)
             categories = (
                 category
                 .get_descendants(include_self=False)
-                .annotate(count=Count("product__id"))
+                .annotate(count=Count("product") + Count('children__product'))
             )
 
         # for counting how many products are in each category
@@ -157,7 +166,6 @@ class ProductView(DetailView):
         # initial quantity for the product
         quantity = 1
 
-        # for displaying the dropdown menu with only root categories
         categories = (
             Category.objects
             .all()
@@ -170,6 +178,7 @@ class ProductView(DetailView):
         cart_count = cart.aggregate(count=Count("cartitems"))
 
         context["reviews"] = product_reviews
+        # for displaying the dropdown menu with only root categories
         context["categories_root"] = categories
         context["quantity"] = quantity
         context["cart_count"] = cart_count.get("count")
