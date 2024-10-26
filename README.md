@@ -60,8 +60,8 @@ There are several records in the database for testing.
 ## Usage
 Clone the repository:
 ```bash
-git clone https://github.com/hella753/form_and_database.git
-cd form_and_database
+git clone https://github.com/hella753/move_to_CBV.git
+cd move_to_CBV
 ```
 To install the dependencies, use the following command in your terminal:
 ```bash
