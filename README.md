@@ -19,7 +19,7 @@ There are several records in the database for testing.
 
 
 ## **Components** ##
-* **store** - This app contains the 5 models(Product, Category, ProductReviews, ShopReviews and ProductTags). Models are self-explanatory. Has 4 Class based views for homepage, contact, product detail and shop.
+* **store** - This app contains 5 models(Product, Category, ProductReviews, ShopReviews and ProductTags). Models are self-explanatory. Has 4 Class based views for homepage, contact, product detail and shop.
 * **order** - This app contains the models(Checkout(which is the order basically), Cart and CartItems) and 4 class based views for the cart, checkout, one for adding the item to the cart and one for deleting.
 * **media** - All user uploaded images go to the media folder.
 * **static** - for static files: JS, CSS, Images that is being used are all stored there.
@@ -40,8 +40,8 @@ There are several records in the database for testing.
 
 ### URLS
   * Home - is accessible on route `store/`
-  * Shop - is accessible on route `store/category/` or `store/category/_category name_/`. Change the category name with the actual category name. You can access the root categories from the dropdown menu in navbar as well.
-  * Detail - is accessible on route `store/product/jolo/`. Change the 'jolo' with product name if needed. You can access the detail page from the shop when you click on the product as well. 
+  * Shop - is accessible on route `store/category/` or `store/category/category name/`. Change the category name with the actual category slug. You can access the root categories from the dropdown menu in navbar as well.
+  * Detail - is accessible on route `store/product/jolo/`. Change 'jolo' with product slug if needed. You can access the detail page from the shop when you click on the product as well. 
   * Contact - is accessible on route `contact/`
   * Cart - is accessible on route `order/cart/`. You can also access this page by clicking the cart icon in the navbar 
   * Checkout - is accessible on route `order/checkout/`.
